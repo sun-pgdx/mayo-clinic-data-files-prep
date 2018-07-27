@@ -27,6 +27,32 @@ QUALIFIED_COLUMNS_LOOKUP = None
 ## changestovcf executable.
 HEADER_ROW_COUNT = 1
 
+def uncompress_file(infile, verbose):
+    """
+    """
+    cmd = "gunzip -f " + infile
+
+    newfile, file_extension = os.path.splitext(infile)
+
+    if verbose:
+        print("Will attempt to execute : '%s'" % cmd)
+
+    p = subprocess.Popen(cmd, shell=True)
+
+    (stdout, stderr) = p.communicate()
+
+    p_status = p.wait()
+
+    if p_status == 0:
+        print("Successfully gunziped file '%s'" % infile)
+        print("The new file is called '%s'" % newfile)
+
+    else:
+        print("Encountered some problem during invocation of '%s' : %s " % (cmd, stderr))
+
+    return newfile
+
+
 def get_qualified_columns_lookup():
     """
     """
@@ -177,7 +203,7 @@ def create_infile_symlink(infile, symlink_file):
 @click.argument('infile')
 @click.argument('sample_id')
 @click.option('--verbose', default=False, is_flag=True)
-@click.option('--create_symlink', default=True, is_flag=True)
+@click.option('--create_symlink', default=False, is_flag=True)
 @click.option('--outdir', default='./')
 @click.option('--header_row_count', default=1)
 def main(infile, sample_id, verbose, create_symlink, outdir, header_row_count):
@@ -229,6 +255,8 @@ def main(infile, sample_id, verbose, create_symlink, outdir, header_row_count):
     if verbose:
         print("Found file type '%s'" % file_type)
 
+    if ".gz" in infile_basename_lc:
+        infile = uncompress_file(infile, verbose)
 
     if verbose:
         print("Including only the following column names:")
