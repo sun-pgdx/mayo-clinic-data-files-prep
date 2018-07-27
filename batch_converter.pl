@@ -122,7 +122,7 @@ sub identify_all_assets {
 	$seq_id_to_assets_lookup->{$seq_id}->{'All'} = $all_changes_file;
 
 	if ($seq_id_ctr == 1){
-	    last;
+#	    last;
 	}
     }
 }
