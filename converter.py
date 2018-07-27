@@ -244,11 +244,17 @@ def main(infile, sample_id, verbose, create_symlink, outdir, header_row_count):
     file_type = 'Unknown'
 
     if "allchanges.txt" in infile_basename_lc:
+
         file_type = 'Unfiltered'
+
     elif "plasmachanges.txt" in infile_basename_lc:
+
         file_type = 'Filtered'
+
     elif "vv_changes.txt" in infile_basename_lc:
+
         file_type = 'MAF-Filtered'
+
     else:
         print("Unsupported file type")
 
