@@ -259,13 +259,15 @@ sub uncompress_file {
 
     my ($infile, $verbose) = @_;
     
-    my $cmd = "gunzip -f " + $infile;
+    my $cmd = "gunzip -f " . $infile;
 
     if ($infile =~ m/\.gz$/){
 	$infile =~ s/\.gz$//;
     }
 
     &execute_cmd($cmd);
+
+    return $infile;
 }
 
 sub get_qualified_columns_lookup {
@@ -299,6 +301,8 @@ sub filter_file_without_pandas {
     open (INFILE, "<$infile") || die "Could not open input file '$infile' in read mode : $!";
 
 
+    my $already_found_lookup = {};
+    
     my $row_ctr = 0;
     
     while ( my $line = <INFILE>){
@@ -322,14 +326,18 @@ sub filter_file_without_pandas {
 		
 		if (exists $qualified_column_lookup->{$header}){
 
-		    $qualified_column_number_lookup->{$header_ctr} = $header;
+		    if (! exists $already_found_lookup->{$header}){
+			$qualified_column_number_lookup->{$header_ctr} = $header;
+			
+			push(@{$qualified_column_number_list}, $header_ctr);
+			
+			push(@{$qualified_header_list}, $header);
 
-		    push(@{$qualified_column_number_list}, $header_ctr);
-
-		    push(@{$qualified_header_list}, $header);
-
-                    $header_ctr++;
+			$already_found_lookup->{$header}++;
+		    }
 		}
+
+		$header_ctr++;
 	    }
 	}
 	else {
