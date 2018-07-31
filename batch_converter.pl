@@ -9,6 +9,8 @@ use constant FALSE => 0;
 
 my $write_to_seq_dir = TRUE;
 
+my $PERL_MODE = TRUE;
+
 my $file_type_list = ['All', 'Plasma', 'MAF'];
 
 my $outdir = '/tmp/' . File::Basename::basename($0) . '/' . time();
@@ -154,7 +156,16 @@ sub write_batch_file {
 		#mkpath($results_dir) || die "Could not create results directory '$results_dir' : $!";
 	    }
 		    
-	    my $cmd = "python converter.py $file $seq_id --outdir $results_dir";
+	    my $cmd;
+
+	    if ($PERL_MODE){
+
+		$cmd = "perl converter.pl --infile $file --sample_id $seq_id --outdir $results_dir 1>>$results_dir/converter.pl.stdout 2>>$results_dir/converter.pl.stderr";
+	    }
+	    else {
+
+		$cmd = "python converter.py $file $seq_id --outdir $results_dir 1>>$results_dir/converter.py.stdout 2>>$results_dir/converter.py.stderr";
+	    }
 	    
 	    print OUTFILE $cmd . "\n";
 	}
