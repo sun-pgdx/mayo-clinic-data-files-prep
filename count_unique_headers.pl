@@ -7,7 +7,9 @@ if (!defined($infile)){
 }
 
 open (INFILE, "<$infile") || die "Could not open file '$infile' in read mode : $!";
+
 my $lookup = {};
+
 while (my $line = <INFILE>){
     chomp $line;
     my @parts = split("\t", $line);
