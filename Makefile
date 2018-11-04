@@ -12,7 +12,6 @@ run-test:
 # INSTDIR is the "Install dir" used by the build system
 copy-files:
 	mkdir -p $(INSTDIR)/opt/$(NAME)
-	mkdir -p $(INSTDIR)/usr/local/bin
 	rsync -avr *.pl $(INSTDIR)/opt/$(NAME)
 
 create-package: copy-files
