@@ -89,14 +89,14 @@ sub checkCommandLineArguments {
 
         printBoldRed("--infile was not specified");
 
-	$fatalCtr++;
+    	$fatalCtr++;
     }
 
     if (!defined($sample_id)){
 
         printBoldRed("--sample_id was not specified");
 
-	$fatalCtr++;
+    	$fatalCtr++;
     }
 
 
@@ -123,7 +123,7 @@ sub checkCommandLineArguments {
 
     if (!defined($outdir)){
 
-	$outdir = DEFAULT_OUTDIR;
+    	$outdir = DEFAULT_OUTDIR;
 
         printYellow("--outdir was not specified and therefore was set to default '$outdir'");
     }
@@ -172,12 +172,12 @@ sub printGreen {
 sub main {
 
     if (!-e $infile){
-	die "infile '$infile' does not exist";
+    	die "infile '$infile' does not exist";
     }
 
     if ($verbose){
         print("The input file is '$infile'\n");
-	print("The sample_id is '$sample_id'\n");
+    	print("The sample_id is '$sample_id'\n");
     }
 
     my $infile_basename = File::Basename::basename($infile);
@@ -199,7 +199,7 @@ sub main {
     else {
 
         print("Unsupported file type '$infile'\n");
-	exit(0);
+    	exit(0);
     }
 
     if ($verbose){
@@ -247,7 +247,7 @@ sub execute_cmd {
     }
 
     eval {
-	qx($cmd);
+    	qx($cmd);
     };
 
     if ($?){
@@ -263,7 +263,7 @@ sub uncompress_file {
     my $cmd = "gunzip -f " . $infile;
 
     if ($infile =~ m/\.gz$/){
-	$infile =~ s/\.gz$//;
+    	$infile =~ s/\.gz$//;
     }
 
     &execute_cmd($cmd);
@@ -308,51 +308,52 @@ sub filter_file_without_pandas {
 
     while ( my $line = <INFILE>){
 
-	chomp $line;
+    	chomp $line;
 
-	my @parts = split("\t", $line);
+    	my @parts = split("\t", $line);
 
-	my $row = \@parts;
+    	my $row = \@parts;
 
-	$row_ctr++;
+    	$row_ctr++;
 
-	if ($row_ctr == 1){
+    	if ($row_ctr == 1){
 
-	    # This is the header so want to derive the column numbers for our
-	    # fields of interest.
+    	    # This is the header so want to derive the column numbers for our
+    	    # fields of interest.
 
-	    my $header_ctr = 0;
+    	    my $header_ctr = 0;
 
-	    for my $header (@{$row}){
+    	    for my $header (@{$row}){
 
-		if (exists $qualified_column_lookup->{$header}){
+        		if (exists $qualified_column_lookup->{$header}){
 
-		    if (! exists $already_found_lookup->{$header}){
-			$qualified_column_number_lookup->{$header_ctr} = $header;
+        		    if (! exists $already_found_lookup->{$header}){
 
-			push(@{$qualified_column_number_list}, $header_ctr);
+            			$qualified_column_number_lookup->{$header_ctr} = $header;
 
-			push(@{$qualified_header_list}, $header);
+            			push(@{$qualified_column_number_list}, $header_ctr);
 
-			$already_found_lookup->{$header}++;
-		    }
-		}
+            			push(@{$qualified_header_list}, $header);
 
-		$header_ctr++;
-	    }
-	}
-	else {
+            			$already_found_lookup->{$header}++;
+        		    }
+        		}
 
-	    my $record = [];
+        		$header_ctr++;
 
-	    for my $field_num (@{$qualified_column_number_list}){
+    	    }
+    	}
+    	else {
 
-		push(@{$record}, $row->[$field_num]);
-	    }
+    	    my $record = [];
 
+    	    for my $field_num (@{$qualified_column_number_list}){
 
-	    push(@{$filtered_record_list}, $record);
-	}
+        		push(@{$record}, $row->[$field_num]);
+    	    }
+
+    	    push(@{$filtered_record_list}, $record);
+    	}
     }
 
 
@@ -363,7 +364,7 @@ sub filter_file_without_pandas {
 
     for my $row (@{$filtered_record_list}){
 
-	print OUTFILE join(',', @{$row}) . "\n";
+    	print OUTFILE join(',', @{$row}) . "\n";
     }
 
     print("Wrote output file CSV file '$outfile'\n");
@@ -379,8 +380,8 @@ sub get_file_line_count {
 
     while ( my $line = <INFILE>){
 
-	chomp $line;
-	$row_ctr++;
+    	chomp $line;
+    	$row_ctr++;
     }
 
     return $row_ctr;

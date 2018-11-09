@@ -49,32 +49,32 @@ sub derive_seq_id_list {
 
     for my $seq_dir (@lines){
 
-	if ($seq_dir =~ /^\s*$/){
-	    next;
-	}
+    	if ($seq_dir =~ /^\s*$/){
+    	    next;
+    	}
 
-	if ($seq_dir =~ /^#/){
-	    next;
-	}
+    	if ($seq_dir =~ /^#/){
+    	    next;
+    	}
 
-	if (!-e $seq_dir){
-	    warn "$seq_dir does not exist";
-	}
+    	if (!-e $seq_dir){
+    	    warn "$seq_dir does not exist";
+    	}
 
-	if (!-d $seq_dir){
-	    warn "$seq_dir is not a directory";
-	}
+    	if (!-d $seq_dir){
+    	    warn "$seq_dir is not a directory";
+    	}
 
-	my $seq_id = File::Basename::basename($seq_dir);
+    	my $seq_id = File::Basename::basename($seq_dir);
 
-	if ($seq_id =~ m/^(MAYO\d{4}P_PS_Seq2)_\d{8}_\d{6}$/){
-	    $seq_id = $1;
-	    print "Found seq_id '$seq_id'\n";
-	    $seq_id_to_dir_lookup->{$seq_id} = $seq_dir;
-	}
-	else {
-	    warn "Could not parse '$seq_id'\n";
-	}
+    	if ($seq_id =~ m/^(MAYO\d{4}P_PS_Seq2)_\d{8}_\d{6}$/){
+    	    $seq_id = $1;
+    	    print "Found seq_id '$seq_id'\n";
+    	    $seq_id_to_dir_lookup->{$seq_id} = $seq_dir;
+    	}
+    	else {
+    	    warn "Could not parse '$seq_id'\n";
+    	}
     }
 }
 
@@ -84,48 +84,48 @@ sub identify_all_assets {
 
     for my $seq_id (sort keys %{$seq_id_to_dir_lookup}){
 
-	$seq_id_ctr++;
+    	$seq_id_ctr++;
 
-	my $seq_dir = $seq_id_to_dir_lookup->{$seq_id};
+    	my $seq_dir = $seq_id_to_dir_lookup->{$seq_id};
 
-	my $seq_outdir = $outdir . '/' . $seq_id;
+    	my $seq_outdir = $outdir . '/' . $seq_id;
 
-	mkpath($seq_outdir) || die "Could not create output directory '$seq_outdir' : $!";
+    	mkpath($seq_outdir) || die "Could not create output directory '$seq_outdir' : $!";
 
-	print "Created seq output directory '$seq_outdir'\n";
+    	print "Created seq output directory '$seq_outdir'\n";
 
-	## MAF file
-	my $maf_file = &get_maf_file($seq_dir, $seq_id);#= $seq_dir . '/' . $seq_id . '*novo/misc/' . $seq_id . '*VV*';
+    	## MAF file
+    	my $maf_file = &get_maf_file($seq_dir, $seq_id);#= $seq_dir . '/' . $seq_id . '*novo/misc/' . $seq_id . '*VV*';
 
-	if (!-e $maf_file){
-	    warn "Could not find MAF file '$maf_file'";
-	}
-	else {
-	    $seq_id_to_assets_lookup->{$seq_id}->{'MAF'} = $maf_file;
-	}
+    	if (!-e $maf_file){
+    	    warn "Could not find MAF file '$maf_file'";
+    	}
+    	else {
+    	    $seq_id_to_assets_lookup->{$seq_id}->{'MAF'} = $maf_file;
+    	}
 
-	## Plasma Changes file
-	my $plasma_changes_file = $seq_dir . '/' . File::Basename::basename($seq_dir) . '.PlasmaChanges.txt';
-	if (!-e $plasma_changes_file){
-	    die "Could not find Plasma Changes file '$plasma_changes_file'";
-	}
-
-
-	$seq_id_to_assets_lookup->{$seq_id}->{'Plasma'} = $plasma_changes_file;
+    	## Plasma Changes file
+    	my $plasma_changes_file = $seq_dir . '/' . File::Basename::basename($seq_dir) . '.PlasmaChanges.txt';
+    	if (!-e $plasma_changes_file){
+    	    die "Could not find Plasma Changes file '$plasma_changes_file'";
+    	}
 
 
-	## All Changes file
-	## E.g.: /cifs/pods/data39-pgdx-pod22/Samples/MAYO0123P_PS_Seq2_20180722_171158/MAYO0123P_PS_Seq2_novo/MAYO0123P_PS_Seq2_novo.allchanges.txt
-	my $all_changes_file = &get_all_changes_file($seq_dir, $seq_id); #$seq_dir . '/' . $seq_id . '*/' . $seq_id . '*.allchanges.txt';
-	if (!-e $all_changes_file){
-	    die "Could not find All Changes file '$all_changes_file'";
-	}
+    	$seq_id_to_assets_lookup->{$seq_id}->{'Plasma'} = $plasma_changes_file;
 
-	$seq_id_to_assets_lookup->{$seq_id}->{'All'} = $all_changes_file;
 
-	if ($seq_id_ctr == 1){
-#	    last;
-	}
+    	## All Changes file
+    	## E.g.: /cifs/pods/data39-pgdx-pod22/Samples/MAYO0123P_PS_Seq2_20180722_171158/MAYO0123P_PS_Seq2_novo/MAYO0123P_PS_Seq2_novo.allchanges.txt
+    	my $all_changes_file = &get_all_changes_file($seq_dir, $seq_id); #$seq_dir . '/' . $seq_id . '*/' . $seq_id . '*.allchanges.txt';
+    	if (!-e $all_changes_file){
+    	    die "Could not find All Changes file '$all_changes_file'";
+    	}
+
+    	$seq_id_to_assets_lookup->{$seq_id}->{'All'} = $all_changes_file;
+
+    	if ($seq_id_ctr == 1){
+    #	    last;
+    	}
     }
 }
 
@@ -136,44 +136,44 @@ sub write_batch_file {
 
     for my $seq_id (sort keys %{$seq_id_to_assets_lookup}){
 
-	print OUTFILE "\n\necho 'Processing $seq_id'\n";
+    	print OUTFILE "\n\necho 'Processing $seq_id'\n";
 
-	for my $file_type (sort @{$file_type_list}){
+    	for my $file_type (sort @{$file_type_list}){
 
-	    my $file = $seq_id_to_assets_lookup->{$seq_id}->{$file_type};
+    	    my $file = $seq_id_to_assets_lookup->{$seq_id}->{$file_type};
 
-	    my $results_dir = $outdir . '/' . $seq_id;
+    	    my $results_dir = $outdir . '/' . $seq_id;
 
-	    if ($write_to_seq_dir){
+    	    if ($write_to_seq_dir){
 
-		my $seq_dir = $seq_id_to_dir_lookup->{$seq_id};
+        		my $seq_dir = $seq_id_to_dir_lookup->{$seq_id};
 
-		$results_dir = $seq_dir . '/vcf-data-prep/';
-	    }
+        		$results_dir = $seq_dir . '/vcf-data-prep/';
+    	    }
 
-	    if (!-e $results_dir){
-            print OUTFILE "\necho 'Creating directory $results_dir'\n";
-    		print OUTFILE "mkdir -p $results_dir\n";
-		#mkpath($results_dir) || die "Could not create results directory '$results_dir' : $!";
-	    }
+    	    if (!-e $results_dir){
+                print OUTFILE "\necho 'Creating directory $results_dir'\n";
+        		print OUTFILE "mkdir -p $results_dir\n";
+    		#mkpath($results_dir) || die "Could not create results directory '$results_dir' : $!";
+    	    }
 
-	    my $cmd;
+    	    my $cmd;
 
-        my $stdout = $results_dir . '/' . File::Basename::basename($file) . '.stdout';
-        my $stderr = $results_dir . '/' . File::Basename::basename($file) . '.stderr';
+            my $stdout = $results_dir . '/' . File::Basename::basename($file) . '.stdout';
+            my $stderr = $results_dir . '/' . File::Basename::basename($file) . '.stderr';
 
-	    if ($PERL_MODE){
+    	    if ($PERL_MODE){
 
-		$cmd = "perl converter.pl --infile $file --sample_id $seq_id --outdir $results_dir 1>>$stdout 2>>$stderr";
-	    }
-	    else {
+        		$cmd = "perl converter.pl --infile $file --sample_id $seq_id --outdir $results_dir 1>>$stdout 2>>$stderr";
+    	    }
+    	    else {
 
-		$cmd = "python converter.py $file $seq_id --outdir $results_dir 1>>$stdout 2>>$stderr";
-	    }
+        		$cmd = "python converter.py $file $seq_id --outdir $results_dir 1>>$stdout 2>>$stderr";
+    	    }
 
-        print OUTFILE "\necho 'About to execute $cmd'\n";
-	    print OUTFILE $cmd . "\n";
-	}
+            print OUTFILE "\necho 'About to execute $cmd'\n";
+    	    print OUTFILE $cmd . "\n";
+    	}
     }
 
     close OUTFILE;
@@ -190,11 +190,11 @@ sub get_results {
     my @results;
 
     eval {
-	@results = qx($cmd);
+    	@results = qx($cmd);
     };
 
     if ($?){
-	die "Encountered some error while attempting to execute '$cmd' : $! $@";
+    	die "Encountered some error while attempting to execute '$cmd' : $! $@";
     }
 
     chomp @results;
@@ -214,11 +214,11 @@ sub get_maf_file {
 
     for my $file (@{$results}){
 
-	print "Found candidate '$file'\n";
+    	print "Found candidate '$file'\n";
 
-	if ($file =~ m|/misc/|){
-	    return $file;
-	}
+    	if ($file =~ m|/misc/|){
+    	    return $file;
+    	}
     }
 
     die "Did not find MAF file in $seq_dir";
@@ -236,14 +236,14 @@ sub get_all_changes_file {
 
     for my $file (@{$results}){
 
-	print "Found candidate '$file'\n";
+    	print "Found candidate '$file'\n";
 
-	my $dirname = File::Basename::dirname($file);
-	my $dirname2 = File::Basename::dirname($dirname);
-	my $basename = File::Basename::basename($dirname);
-	if (($basename =~ m/novo/) && ($dirname2 eq $seq_dir)){
-	    return $file;
-	}
+    	my $dirname = File::Basename::dirname($file);
+    	my $dirname2 = File::Basename::dirname($dirname);
+    	my $basename = File::Basename::basename($dirname);
+    	if (($basename =~ m/novo/) && ($dirname2 eq $seq_dir)){
+    	    return $file;
+    	}
     }
 
     die "Did not find MAF file in $seq_dir";
