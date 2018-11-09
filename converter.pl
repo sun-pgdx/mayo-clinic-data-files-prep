@@ -1,5 +1,6 @@
 #!/usr/bin/env perl
 use strict;
+use Carp;
 use Term::ANSIColor;
 use Pod::Usage;
 use File::Path;
@@ -19,7 +20,7 @@ use constant DEFAULT_HEADER_ROW_COUNT => 1;
 use constant DEFAULT_VERBOSE => TRUE;
 
 use constant DEFAULT_OUTDIR => '/tmp/' . File::Basename::basename($0) . '/' . time();
-    
+
 
 ## Will make this configurable
 my $changestovcf_exec = './changestovcf.pl';
@@ -42,11 +43,11 @@ my $HEADER_ROW_COUNT = 1;
 my (
     $help,
     $man,
-    $infile, 
-    $sample_id, 
-    $verbose, 
-    $create_symlink, 
-    $outdir, 
+    $infile,
+    $sample_id,
+    $verbose,
+    $create_symlink,
+    $outdir,
     $header_row_count
     );
 
@@ -64,7 +65,7 @@ my $results = GetOptions (
 &checkCommandLineArguments();
 
 &main();
-    
+
 
 ##------------------------------------------------------
 ##
@@ -83,7 +84,7 @@ sub checkCommandLineArguments {
     }
 
     my $fatalCtr=0;
-    
+
     if (!defined($infile)){
 
         printBoldRed("--infile was not specified");
@@ -98,7 +99,7 @@ sub checkCommandLineArguments {
 	$fatalCtr++;
     }
 
-    
+
     if (!defined($verbose)){
 
         $verbose = DEFAULT_VERBOSE;
@@ -181,7 +182,7 @@ sub main {
 
     my $infile_basename = File::Basename::basename($infile);
 
-    my $file_type = 'Unknown';				  
+    my $file_type = 'Unknown';
 
     if ($infile_basename =~ m/allchanges\.txt$/i){
 
@@ -213,12 +214,12 @@ sub main {
         print("Including only the following column names : " . join(', ', @{$COLUMNS})) . "\n";
     }
 
-    
+
     # Retrieve subset of columns filtered by column
     # names specified in the columns list.
 
     my $outfile = $outdir . '/' . $sample_id . '_' . $file_type . '.csv';
-    
+
     &filter_file_without_pandas($infile, $outfile);
 
     my $line_count = &get_file_line_count($infile);
@@ -236,11 +237,11 @@ sub main {
         &create_infile_symlink($infile, $symlink_file);
     }
 }
-    
+
 sub execute_cmd {
 
     my ($cmd) = @_;
-    
+
     if ($verbose){
         print("Will attempt to execute '$cmd'\n");
     }
@@ -250,15 +251,15 @@ sub execute_cmd {
     };
 
     if ($?){
-	die "Encountered some error while attempting to execute '$cmd' : $@ $!";
+    	confess "Encountered some error while attempting to execute '$cmd' : $@ $!";
     }
-   
+
 }
 
 sub uncompress_file {
 
     my ($infile, $verbose) = @_;
-    
+
     my $cmd = "gunzip -f " . $infile;
 
     if ($infile =~ m/\.gz$/){
@@ -271,13 +272,13 @@ sub uncompress_file {
 }
 
 sub get_qualified_columns_lookup {
-    
+
     my $lookup = {};
 
     for my $column_name (@{$COLUMNS}){
         $lookup->{$column_name}++;
     }
-    
+
     return $lookup;
 }
 
@@ -302,9 +303,9 @@ sub filter_file_without_pandas {
 
 
     my $already_found_lookup = {};
-    
+
     my $row_ctr = 0;
-    
+
     while ( my $line = <INFILE>){
 
 	chomp $line;
@@ -312,7 +313,7 @@ sub filter_file_without_pandas {
 	my @parts = split("\t", $line);
 
 	my $row = \@parts;
-	
+
 	$row_ctr++;
 
 	if ($row_ctr == 1){
@@ -323,14 +324,14 @@ sub filter_file_without_pandas {
 	    my $header_ctr = 0;
 
 	    for my $header (@{$row}){
-		
+
 		if (exists $qualified_column_lookup->{$header}){
 
 		    if (! exists $already_found_lookup->{$header}){
 			$qualified_column_number_lookup->{$header_ctr} = $header;
-			
+
 			push(@{$qualified_column_number_list}, $header_ctr);
-			
+
 			push(@{$qualified_header_list}, $header);
 
 			$already_found_lookup->{$header}++;
@@ -341,20 +342,20 @@ sub filter_file_without_pandas {
 	    }
 	}
 	else {
-	    
+
 	    my $record = [];
 
 	    for my $field_num (@{$qualified_column_number_list}){
 
 		push(@{$record}, $row->[$field_num]);
 	    }
-	    
+
 
 	    push(@{$filtered_record_list}, $record);
 	}
     }
-    
-    
+
+
 
     open (OUTFILE, ">$outfile") || die "Could not open output file '$outfile' in write mode : $!";
 
@@ -371,11 +372,11 @@ sub filter_file_without_pandas {
 sub get_file_line_count {
 
     my ($fname) = @_;
-    
+
     open (INFILE, "<$infile") || die "Could not open input file '$infile' in read mode : $!";
 
     my $row_ctr = 0;
-    
+
     while ( my $line = <INFILE>){
 
 	chomp $line;
@@ -393,7 +394,7 @@ sub run_changestovcf {
     my $cmd = "tail -" . $count . ' ' . $infile . ' | perl ' . $changestovcf_exec . ' > ' . $outfile;
 
     &execute_cmd($cmd);
-    
+
     print("VCF file '$outfile' is ready\n");
 }
 
