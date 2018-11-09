@@ -360,11 +360,11 @@ sub filter_file_without_pandas {
 
     open (OUTFILE, ">$outfile") || die "Could not open output file '$outfile' in write mode : $!";
 
-    print OUTFILE join(',', @{$qualified_header_list}) . "\n";
+    print OUTFILE join("\t", @{$qualified_header_list}) . "\n";
 
     for my $row (@{$filtered_record_list}){
 
-    	print OUTFILE join(',', @{$row}) . "\n";
+    	print OUTFILE join("\t", @{$row}) . "\n";
     }
 
     print("Wrote output file CSV file '$outfile'\n");
